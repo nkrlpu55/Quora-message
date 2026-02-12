@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sheet Teaser Animation</title>
+    <title>Sheet Teaser  Animation</title>
     <style>
         :root {
             /* TWEAK THESE VALUES TO ADJUST THE TEASE */
@@ -42,6 +42,8 @@
         /* The actual sheet image container */
         #sheet-container {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 150%; /* Larger than screen to allow for panning */
             filter: blur(var(--base-blur));
             transform-origin: 20% 30%; /* Focus zoom towards the "Owner" column area */
@@ -50,6 +52,8 @@
 
         #sheet-image {
             width: 100%;
+            height: auto;
+            max-width: none;
             display: block;
             will-change: transform;
         }
@@ -208,6 +212,80 @@
         @keyframes pulse {
             0%, 100% { opacity: 0.4; }
             50% { opacity: 1; }
+        }
+
+        /* Responsive tweaks for small screens / smartphones */
+        @media (max-width: 600px) {
+            :root {
+                --base-blur: 10px;
+                --focus-blur: 5px;
+            }
+
+            #sheet-container {
+                width: 200%; /* allow more room to pan on narrow screens */
+                transform-origin: 30% 35%;
+            }
+
+            .focus-window {
+                width: calc(100% - 48px);
+                height: 120px;
+                border-radius: 12px;
+                top: 45%;
+                left: 50%;
+                transform: translate(-50%, -45%);
+                padding: 8px 12px;
+            }
+
+            .cta-content {
+                padding: 20px;
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .headline {
+                font-size: clamp(1.6rem, 6.5vw, 2.4rem);
+            }
+
+            .subline {
+                font-size: 0.95rem;
+                margin-bottom: 24px;
+            }
+
+            .cta-button {
+                width: 100%;
+                padding: 14px 18px;
+                font-size: 1rem;
+            }
+
+            .indicator {
+                bottom: 18px;
+                font-size: 0.72rem;
+                letter-spacing: 1.6px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .focus-window {
+                height: 100px;
+            }
+
+            .cta-content {
+                padding: 14px;
+            }
+
+            .headline {
+                font-size: 1.6rem;
+            }
+
+            .subline {
+                font-size: 0.9rem;
+                margin-bottom: 18px;
+            }
+
+            :root {
+                --base-blur: 8px;
+                --focus-blur: 4px;
+            }
         }
     </style>
 </head>
