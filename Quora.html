@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sheet Teaser Animation</title>
+    <style>
+        :root {
+            /* TWEAK THESE VALUES TO ADJUST THE TEASE */
+            --base-blur: 14px;         /* Blur for the general sheet */
+            --focus-blur: 6px;         /* Blur inside the glass window (still unreadable) */
+            --scroll-speed: 0.9;       /* Higher is faster */
+            --animation-duration: 9s;  /* Total time before CTA fades in */
+            --accent-color: #1a73e8;   /* Google Sheets Blue */
+            --btn-hover: #1765cc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        /* The main container that handles the cinematic zoom/pan */
+        #viewport {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        /* The actual sheet image container */
+        #sheet-container {
+            position: absolute;
+            width: 150%; /* Larger than screen to allow for panning */
+            filter: blur(var(--base-blur));
+            transform-origin: 20% 30%; /* Focus zoom towards the "Owner" column area */
+            animation: cinematicIntro var(--animation-duration) cubic-bezier(0.45, 0, 0.55, 1) forwards;
+        }
+
+        #sheet-image {
+            width: 100%;
+            display: block;
+            will-change: transform;
+        }
+
+        /* Cinematic Motion: Zoom in and subtle pan */
+        @keyframes cinematicIntro {
+            0% {
+                transform: scale(0.8) translate(0, 0);
+            }
+            100% {
+                transform: scale(1.15) translate(5%, 10%);
+            }
+        }
+
+        /* The Glassmorphism Focus Window */
+        .focus-window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 480px; /* Slightly wider for better balance */
+            height: 140px;
+            z-index: 10;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8),
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            
+            backdrop-filter: blur(var(--focus-blur));
+            -webkit-backdrop-filter: blur(var(--focus-blur));
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInGlass 1.5s ease 1s forwards;
+        }
+
+        .focus-window::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            bottom: 0;
+            animation: scanline 3s linear infinite;
+        }
+
+        @keyframes fadeInGlass {
+            to { opacity: 1; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-140px); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(10px); opacity: 0; }
+        }
+
+        /* Dark Overlay and CTA */
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.75) 0%, rgba(0,0,0,1) 100%);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease;
+        }
+
+        .cta-content {
+            text-align: center;
+            color: white;
+            transform: translateY(30px);
+            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 90%;
+            max-width: 550px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #overlay.active .cta-content {
+            transform: translateY(0);
+        }
+
+        .headline {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .subline {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 300;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        /* The CTA Button */
+        .cta-button {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .cta-button:hover {
+            background-color: var(--btn-hover);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.5);
+        }
+
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+
+        .indicator {
+            position: absolute;
+            bottom: 40px;
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="viewport">
+        <div id="sheet-container">
+            <img id="sheet-image" src="sheet.png" alt="Quora Sheet">
+        </div>
+
+        <!-- The 'Navigation Glass' -->
+        <div class="focus-window">
+            <div class="indicator">Analyzing Rows...</div>
+        </div>
+    </div>
+
+    <!-- Final CTA Screen -->
+    <div id="overlay">
+        <div class="cta-content">
+            <h1 class="headline">Action Required.</h1>
+            <p class="subline">Several entries are still marked as "Drafted". Click below to finish your pending Quora tasks.</p>
+            
+            <a href="https://docs.google.com/spreadsheets/d/18zR7RNjY3JQpMjGGp7CalHvkFtQYB74gZcdgTUSKvFM/edit?usp=sharing" 
+               target="_blank" 
+               class="cta-button">
+                Pending tasks detected
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const sheetContainer = document.getElementById('sheet-container');
+        const overlay = document.getElementById('overlay');
+        const scrollSpeed = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scroll-speed'));
+        
+        let scrollPos = 0;
+        let animationActive = true;
+
+        function smoothScroll() {
+            if (!animationActive) return;
+            
+            scrollPos += scrollSpeed;
+            sheetContainer.style.top = `-${scrollPos}px`;
+            
+            requestAnimationFrame(smoothScroll);
+        }
+
+        window.onload = () => {
+            requestAnimationFrame(smoothScroll);
+
+            const totalTime = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--animation-duration')) * 1000;
+            
+            setTimeout(() => {
+                animationActive = false;
+                overlay.classList.add('active');
+            }, totalTime - 500); 
+        };
+    </script>
+</body>
+</html>
